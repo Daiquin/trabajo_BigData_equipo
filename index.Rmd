@@ -1,0 +1,506 @@
+---
+title: "Impacto económico del Covid-19 según modelo de desarrollo de los países"
+author: "Dairo Smith Quintero Vargas(daiquin@alumni.uv.es)  \n\n Daniela Villa Arboleda(daviar@alumni.uv.es)  \n\n Carlos Corachan Pérez(carcope2@alumni.uv.es) \n \n Miguel Silla Rios (misirios@alumni.uv.es). \n\n Universitat de València"
+date: "Diciembre de 2020 (actualizado el `r format(Sys.time(), '%d-%m-%Y')`)"
+output:
+  html_document:
+    theme: paper
+    highlight: textmate 
+    toc: true
+    toc_depth: 3 
+    toc_float: 
+      collapsed: true
+      smooth_scroll: true
+    self_contained: true
+    number_sections: false
+    df_print: kable
+    code_download: true
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r packages-setup, include = FALSE}
+library(tidyverse)
+library(klippy)  #- remotes::install_github("rlesur/klippy")
+library(knitr)
+library(eurostat)
+library(rio)
+library(DT)
+library(ggplot2)
+library(ggrepel)
+library(ggthemes)
+library(cowplot)
+library(gganimate)
+library(plotly)
+library(WDI)
+library(kableExtra)
+```
+
+```{r chunk-setup, include = FALSE}
+knitr::opts_chunk$set(echo = TRUE, eval = TRUE, message = FALSE, warning = FALSE, 
+                      #results = "hold",
+                      cache = FALSE, cache.path = "/caches/", comment = "#>",
+                      #fig.width = 7, #fig.height= 7,   
+                      #out.width = 7, out.height = 7,
+                      collapse = TRUE,  fig.show = "hold",
+                      fig.asp = 7/9, out.width = "60%", fig.align = "center")
+knitr::opts_chunk$set(dev = "png", dev.args = list(type = "cairo-png"))
+```
+
+```{r options-setup, include = FALSE}
+options(scipen = 999) #- para quitar la notación científica
+options("yaml.eval.expr" = TRUE) 
+```
+
+
+```{r klippy, echo = FALSE}
+klippy::klippy(position = c("top", "right")) #- remotes::install_github("rlesur/klippy")
+```
+
+-----------------
+
+Trabajo  elaborado para la asignatura "Programación y manejo de datos en la era del Big Data" de la Universitat de València durante el curso 2020-2021. La página web de la asignatura puede verse aquí: <https://perezp44.github.io/intro-ds-20-21-web/>. Los trabajos de mis compañeros de curso pueden verse [aquí](https://perezp44.github.io/intro-ds-20-21-web/07-trabajos.html).
+
+---------------
+
+
+## 1.  Introducción
+
+La actual crisis sanitaria ha tenido un importante impacto a nivel político, económico y social a nivel global, puede que uno de los efectos más relevante es el económico. Como estudiante de economía, abordamos un tema de actualidad desde la vertiente económica, que es la materia que nos atañe y motiva un análisis más eficaz.
+
+Las diversas crisis que han sucedido en el último siglo, han abierto debates sobre las políticas monetarias y fiscales adoptadas por los distintos gobiernos de cada región en los períodos anteriores y posteriores a la crisis. La actual recesión ha generado una controversia más importante sobre la actuación política y económica, ya que atendiendo a la naturaleza de ésta, en concreto crisis sanitaria, no es un acontecimiento fácilmente previsible para los gobiernos, ya que las shocks económicos normalmente suelen tener un origen económico o estructural, por tanto resulta conveniente estudiar el impacto económico que ha tenido la crisis del COVID-19 en algunos de los países miembros de la Unión europea, y verificar si el grado de efecto está relacionado con la especialización económica de cada región.
+
+La UE es una unión de países de distintas características económicas, sociales y políticas. Por tanto, el impacto de una medida o un shock económico es distinto para cada región, con lo cual cabe esperar que la actual crisis afecte de forma irregular a cada una de las regiones europeas, ya sea por una mejor estructura económica, o mejor gestión de los recursos disponibles para hacer frente  a la crisis.
+
+El objetivo del presente trabajo es hacer un análisis de la situación anteriormente descrita, mediante el uso de algunos indicadores económicos, como es el PIB per cápita, volúmen de exportaciones y la renta nacional por sectores productivos, para observar la evolución económica antes y después de la crisis.
+
+
+Es pertinente hacer un pequeño repaso de la estructura económica, y modelos de desarollo de cada región para saber con exactitud de qué tipo de país se va a hablar, por tanto se procede a un breve análisis de la situación de algunos de los países de la UE.
+
+## 2. Especialización productiva
+
+**España**
+
+![Bandera de España](./imagenes/Bandera-España.jpg)
+
+El PIB español en 2019 fue de 1.244.757M.€. Cabe destacar la fuerte caída sufrida en el primer y sobre todo segundo trimestre de 2020 debido a la pandemia. La caída fue de un 17,8%. Según la OCDE España tendrá que esperar como pronto a 2023 para recuperar el nivel de PIB anterior a la pandemia. La deuda española es preocupante y cada día aumenta muchísimo. Actualmente se sitúa en 1.188.859 millones de euros.  La tasa de desempleo es del 16% en 2020.
+En 2018, los sectores más importantes de la economía española fueron el comercio mayorista y minorista, el transporte, la hostelería y la restauración (23,9%), la administración pública, la defensa, la educación, la sanidad y los servicios sociales (18,0%), y la industria (17,7%).
+
+
+**Francia**
+
+El PIB per cápita fue de 35.960€ euros, por lo que se encuentra en el puesto 27 de los 196 países del ranking de PIB per cápita. La última tasa de variación anual del IPC fue del 0,2%. El gasto en educación per cápita es de 1.804€, muy superior a los 1009 euros de España. La tasa de desempleo es de 8,6%
+En 2018, los sectores más importantes de la economía francesa fueron la administración pública, la defensa, la educación, la sanidad y los servicios sociales (22,4%), el comercio mayorista y minorista, el transporte, la hostelería y la restauración (17,8%), las actividades profesionales, científicas y técnicas, y las actividades administrativas y de servicios auxiliares (14,0%)
+
+
+![Bandera de Francia](./imagenes/Francia.jpg)
+
+
+**Alemania**
+
+La deuda pública de Alemania en 2019 fue de 2.053.033 millones de euros, con una deuda del 59,8% del PIB. Su deuda per cápita es de 24.686€ euros por habitante. El PIB per cápita fue de 41.350€ El gasto en educación per cápita es de 1.827 euros. Podemos concluir que España tiene un gasto en educación muy bajo comparado con los países cercanos de la UE. El IVA general es del 19%, inferior al 21% de España y al 20% de Francia.
+En 2018, los sectores más importantes de la economía alemana fueron la industria (25,8 %), la administración pública, la defensa, la educación, la sanidad y los servicios sociales (18,2 %) y el comercio mayorista y minorista, el transporte y la hostelería y la restauración (16,3 %).
+
+
+
+![Bandera de Alemania](./imagenes/Alemania.jpg)
+
+
+```{r, echo = FALSE, eval = TRUE}
+
+df_agr <- WDI(indicator =  "NV.AGR.TOTL.ZS", country = c('ESP','DEU','FRA', 'ITA'), start = 2016, end = 2019)
+
+df_ind <- WDI(indicator =  "NV.IND.TOTL.ZS", country = c('ESP','DEU','FRA', 'ITA'), start = 2016, end = 2019)
+
+df_mnf <- WDI(indicator =  "NV.IND.MANF.ZS", country = c('ESP','DEU','FRA', 'ITA'), start = 2016, end = 2019)
+
+df_serv<- WDI(indicator =  "NV.SRV.TOTL.ZS", country = c('ESP','DEU','FRA', 'ITA'), start = 2016, end = 2019)
+
+#unimos los cuatro dataframe
+
+df_sectores<- inner_join(df_agr,df_ind)
+
+df_sectores1<- inner_join(df_mnf, df_serv )
+
+df_sectores3<- inner_join(df_sectores,df_sectores1)
+
+#Filtro la contribución de los cuatro sectores productivos en el año 2019, modifico los nombres de las variables
+df_sectores4<- df_sectores3 %>% rename(Agricultura = NV.AGR.TOTL.ZS, Industria = NV.IND.TOTL.ZS, Manufactura = NV.IND.MANF.ZS , Servicios=NV.SRV.TOTL.ZS)%>% select ("country", "year", "Agricultura", "Industria", "Manufactura", "Servicios")
+
+df_sect<- df_sectores4 %>% pivot_longer(cols = 3:6, names_to = "sectores")
+
+df_spain <- df_sectores4 %>% pivot_longer(cols = 3:6, names_to = "sectores")%>% filter(country== "Spain", year== 2019)
+
+df_germany<- df_sectores4 %>% pivot_longer(cols = 3:6, names_to = "sectores")%>% filter(country== "Germany", year== 2019)
+
+df_france<- df_sectores4 %>% pivot_longer(cols = 3:6, names_to = "sectores")%>% filter(country== "France", year== 2019)
+
+
+df_italy<- df_sectores4 %>% pivot_longer(cols = 3:6, names_to = "sectores")%>% filter(country== "Italy", year== 2019)
+
+
+
+#crear tabla
+knitr::kable(df_sectores4 ) %>%  kableExtra::kable_styling( bootstrap_options = c("striped", "hover") , fixed_thead = list(enabled = T, background = "darkblue" ))
+
+
+
+#Gráficos de análisis para agricultura e industria
+
+ggplot(df_spain, aes(x="", y=value, fill=sectores)) +
+  geom_bar(stat="identity", width=1) +
+  coord_polar("y", start=0) + ggtitle("Distribución sectorial del PIB español")
+
+ggplot(df_germany, aes(x="% sobre el output", y=value, fill=sectores)) +
+  geom_bar(stat="identity", width=1) +
+  coord_polar("y", start=0) + ggtitle("Distribución sectorial del PIB alemán")
+
+ggplot(df_france, aes(x="% sobre el output", y=value, fill=sectores)) +
+  geom_bar(stat="identity", width=1) +
+  coord_polar("y", start=0) + ggtitle("Distribución sectorial del PIB Francés")
+
+ ggplot(df_italy, aes(x="% sobre el output", y=value, fill=sectores)) +
+  geom_bar(stat="identity", width=1) +
+  coord_polar("y", start=0) + ggtitle("Distribución sectorial del PIB Italiano")
+  
+  
+```
+
+## 3. Demografía y Empleo
+![Demografía y empleo](./imagenes/empleo_covid.jpg)
+
+
+
+A continuación vamos analizar dos variables demográficas importantes como son la población y el empleo, de algunos de los países más representativos de la UE durante la última década, en concreto durante el período 2007-2019, con el fn de conocer las distintas situaciónes de cada país en un entorno anteriór a la crisis sanitaria.
+(Datos obtenidos de eurostat)
+
+```{r, echo = FALSE, eval = TRUE}
+
+#df_eurst <- search_eurostat("population", type = "all")
+
+#estos datos son losque utilizaré para graficas los niveles de población y empleo 
+
+my_table5 <- "naida_10_pe"
+#label_eurostat_tables(my_table5)
+eu_popemp_anu_int <- get_eurostat(my_table5 , time_format = "num")
+eu_popemp_anu_int <- label_eurostat(eu_popemp_anu_int)
+#export(eu_popemp_anu_int , "./datos/eurostat/poblacionempleo.csv" )
+
+#aqui voy a hacer este df tidy, para ello voy a utilizar pivot_wider para poner las variables como columnas, filtrar los paises  y fechas en los que estoy interesado. 
+
+df_popemp <- eu_popemp_anu_int  %>%  pivot_wider(names_from = na_item, 
+                                 values_from = values)
+df_popemp <- df_popemp %>% rename(fecha = time , unidad = unit , empleo_total=`Total employment domestic concept` , población_total=`Total population national concept`, país = geo)
+
+df_popemp <- na.omit(df_popemp)
+
+df_popemp <- df_popemp  %>% filter(país %in% c("Spain", "Italy","Germany (until 1990 former territory of the FRG)" ,"France", "Germany", "United Kingdom", "Poland" ,"Holland")) %>% filter(between(fecha  ,  2008,2019)) %>% mutate(población_total = (población_total/1000))
+
+
+aa<- ggplot(df_popemp , aes(fecha , población_total , color = país)) +theme_stata() + geom_line() +
+     labs(title = "Niveles de Població total" ,
+       caption = "Datos provenientes de la API eurostat",
+       y = "Población",
+       x = "Años") + geom_point() + theme(legend.position = "none")
+ggplotly(aa)
+  
+     
+bb <- ggplot(df_popemp , aes(fecha , empleo_total , color = país)) +theme_gray() + geom_line() +
+     labs(title = "Evolución del Empleo total de cada país" ,
+       caption = "Datos provenientes de la API eurostat",
+       y = "Empleo",
+       x = "Años") + geom_point() + theme(legend.position = "none")
+ggplotly(bb)
+
+
+#intento añadir datos trim del 2020 pero  al filtrar las fechas pierdo los datos del dataframe y no puedo hacer el grafico 
+#my_table5t <- "naidq_10_pe"
+#label_eurostat_tables(my_table5t)
+#eu_popemp_trim_int <- get_eurostat(my_table5t , time_format = "date")
+#eu_popemp_trim_int <- label_eurostat(eu_popemp_trim_int)
+#export(eu_popemp_trim_int , "./datos/eurostat/poblacionempleotrim.csv" )
+
+#aqui voy a hacer este df tidy, para ello voy a utilizar pivot_wider para poner las variables como columnas, filtrar los paises  y fechas en los que estoy interesado. 
+
+#df_popemp_trim <- eu_popemp_trim_int  %>%  pivot_wider(names_from = na_item, values_from = values)
+#df_popemp_trim <- df_popemp_trim %>% rename(fecha = time , unidad = unit , empleo_total=`Total employment domestic concept` , población_total=`Total population national concept`, país = geo)
+
+#df_popemp_trim <- na.omit(df_popemp_trim)
+#str(df_popemp_trim)
+#df_popemp_trim <- df_popemp_trim  %>% filter(país %in% c("Spain", "Italy","Germany (until 1990 former territory of the FRG)" ,"France", "Germany", "United Kingdom", "Poland" ,"Holland")) %>% filter(between (fecha,"2017-01-001", "2020-08-01") %>% mutate(población_total = (población_total/1000))
+
+#ggplot(df_popemp_trim , aes(fecha , población_total , color = país)) +theme_stata() + geom_line() +labs(title = "Població total" ,caption = "Datos provenientes de la API eurostat", y = "Población total", x = "Trimestres") + geom_point()
+
+
+
+
+#a continuación dejo constancia de parte de la busqueda de datos en la api eruostat que finalmente no utilizo por que son datos que ya usan mis compañeros en otros apartados 
+#my_table <-"tec00115"
+#label_eurostat_tables(my_table)
+#eu_gdp_rate <- get_eurostat(my_table , time_format = "raw" , keepFlags = T )
+#df_eu_gdprate <- label_eurostat(eu_gdp_rate)
+#export(eu_gdp_rate, "./datos/eurostat/gdpvariacionporcentual.csv")
+
+#my_table2 <- "namq_10_gdp"
+#label_eurostat_tables(my_table2)
+#eu_rgdp_main <- get_eurostat(my_table2)
+#eu_rgdp_main <- label_eurostat(eu_rgdp_main)
+#export(eu_rgdp_main ,"./datos/eurostat/gdpandmainvalues.csv")
+
+#my_table3 <- "naidq_10_gdp"
+#label_eurostat_tables(my_table3)
+#eu_rgdp_main_int <- get_eurostat(my_table3)
+#eu_rgdp_main_int <- label_eurostat(eu_rgdp_main_int)
+
+#my_table4 <- "naida_10_gdp"
+#label_eurostat_tables(my_table4)
+#eu_rgdp_main_anu_int <- get_eurostat(my_table4)
+#eu_rgdp_main_anu_int <- label_eurostat(eu_rgdp_main_anu_int)
+#export(eu_rgdp_main_anu_int,"./datos/eurostat/realgdpaninternacional.csv" )
+
+```
+
+Como podemos observar tanto en niveles de población como en niveles de empleo total anuales Alemania siempre ha estado en cabeza (dentro de los países seleccionados para esta representación), podemos observar que, si bien hay diferencias en los niveles de población entre países, estos varian poco a lo largo del periódo, mientras que los niveles de empleo tienen distintas tendencias según el país. En Alemania, por ejemplo, han tenido una tendencia creciente a lo largo de todo el periódo, empezando con una cifra de alrededor de 40 mill de empleados en 2007, y terminando con apróximadamente 60 millones de empleados en 2019, mientras que en otros países como por ejemplo España, la recuperación de los niveles de empleo respecto de la anterior crisis de 2008 no empezó a ocurrir sino a partir de los años 2014-2015 y desde entonces habia una tendencia creciente en los niveles de empleo hasta el 2019,  al igual que el resto de países, algunos como Gran Bretaña o Francia incluso tenian niveles de empleo en 2019 muy superiores a los del 2007, con lo que podemos concluir que en 2019 estos países estaba en un situación relativamente prospera en cuanto a niveles de empleo.
+
+
+**más información en:**
+[Base de datos Eurostat](https://ec.europa.eu/eurostat/search?p_auth=nLIBCg0g&p_p_id=estatsearchportlet_WAR_estatsearchportlet&p_p_lifecycle=1&p_p_state=maximized&p_p_mode=view&_estatsearchportlet_WAR_estatsearchportlet_theme=empty&_estatsearchportlet_WAR_estatsearchportlet_action=search&_estatsearchportlet_WAR_estatsearchportlet_collection=empty&text=Employment)
+**Articulo respecto a la evolución del empleo 2008-2018** <https://www.nuevatribuna.es/articulo/europa1/eurozona-empleo-trabajo-mercado-laboral-europa-euro-salarios/20180424071729151171.html>
+
+
+
+## 4. El PIB per cápita
+
+En este apartado analizamos la evolucion del PIB per cápita entre los años 2011, 2019 Y 2020 para España, Italia, Francia, Reino Unido, Holanda, Polonia y Alemania. Hemos dividido los niveles de renta per cápita en 7 categorias para poder visualizar con claridad la integración real entre paises de la UE con modelos de desarrollo distintos.
+
+
+```{r, echo = FALSE, eval = TRUE}
+
+contenido_eurostat <- get_eurostat_toc()
+
+PIBpc <- get_eurostat(id="sdg_08_10", time_format = "num")
+
+DF <- PIBpc %>% filter(time > 2010) %>% filter(geo %in% c("ES", "FR" , "DE", "IT", "SW", "UK" , "PL" ,  "NL"))%>% filter(unit == "CLV10_EUR_HAB")
+
+DF2019 <- DF %>% filter(time == 2019)
+DF2018 <- DF %>% filter(time == 2018)
+DF2011 <- DF %>% filter(time == 2011)
+
+
+
+
+df_x <- DF2019 %>% filter(time == "2019") %>%
+        mutate(cat = cut_to_classes(values, n = 7, decimals = 1))
+
+geometrias <- get_eurostat_geospatial(resolution = "20", nuts_level = "0")
+
+
+mapdata <- inner_join(geometrias, df_x, by = c("geo" = "geo"))
+
+PIBpc_mapa <- get_eurostat_geospatial(nuts_level = 0) %>%
+  right_join(DF2019) %>%
+  mutate(categorias = cut_to_classes(values, n=8, decimals=1))
+
+
+
+
+
+ ggplot(PIBpc_mapa, aes(fill=categorias)) +
+  geom_sf(color = alpha("white", 1/2), alpha= 0.9) +
+  xlim(c(-20, 44)) +
+  ylim(c(35, 70)) +
+  labs(title = "PIB per capita 2019",
+       subtitle = "",
+       caption = "Source: Elaboracion propia",
+       fill= "Euros")+
+  theme_minimal()
+
+
+
+
+
+df_x2011 <- DF2011 %>% filter(time == "2011") %>%
+        mutate(cat = cut_to_classes(values, n = 7, decimals = 1))
+
+geometrias11 <- get_eurostat_geospatial(resolution = "20", nuts_level = "0")
+
+
+mapdata11 <- inner_join(geometrias11, df_x2011, by = c("geo" = "geo"))
+
+PIBpc_mapa11 <- get_eurostat_geospatial(nuts_level = 0) %>%
+  right_join(DF2011) %>%
+  mutate(categorias = cut_to_classes(values, n=8, decimals=1))
+
+
+
+
+ggplot(PIBpc_mapa11, aes(fill=categorias)) +
+  geom_sf(color = alpha("white", 1/2), alpha= 0.9) +
+  xlim(c(-20, 44)) +
+  ylim(c(35, 70)) +
+  labs(title = "PIB per capita 2011",
+       subtitle = "",
+       caption = "Source: Elaboracion propia",
+       fill= "Euros")+
+  theme_minimal()
+
+
+
+PIBpcSINETI <- get_eurostat(id="namq_10_pc", time_format = "num")
+PIBPC2020PC <-label_eurostat(PIBpcSINETI)
+
+DF2020pibpc <- PIBpcSINETI %>% filter(time == 2020.5) %>% filter(geo %in% c("ES", "FR" , "DE", "IT", "SW", "UK" , "PL" ,  "NL"))%>% filter(unit == "CLV10_EUR_HAB") %>%  filter(na_item == "B1GQ")
+
+
+
+
+
+df_xpib2020 <- DF2020pibpc %>% filter(time == "2020.5") %>%
+        mutate(cat = cut_to_classes(values, n = 7, decimals = 1))
+
+geometrias2020pib <- get_eurostat_geospatial(resolution = "20", nuts_level = "0")
+
+
+mapdata2020pib <- inner_join(geometrias2020pib, df_xpib2020, by = c("geo" = "geo"))
+
+PIBpc_mapa2020pib <- get_eurostat_geospatial(nuts_level = 0) %>%
+  right_join(DF2020pibpc) %>%
+  mutate(categorias = cut_to_classes(values, n=8, decimals=1))
+
+
+
+
+
+ggplot(PIBpc_mapa2020pib, aes(fill=categorias)) +
+  geom_sf(color = alpha("white", 1/2), alpha= 0.9) +
+  xlim(c(-20, 44)) +
+  ylim(c(35, 70)) +
+  labs(title = "PIB per capita 2020",
+       subtitle = "",
+       caption = "Source: Elaboracion propia",
+       fill= "Euros")+
+  theme_minimal()
+
+```
+
+El resultado es claro, y es que Holanda y Alemania estaban y estan en un nivel de renta per cápita muy superior al de paises como España. España está en la penúltima categoria, cerca del nivel de Polonia. Podemos concluir en este apartado que con nuestro modelo de desarrollo basado en los servicios y en especial en el turismo, el nivel de renta per cápita en los últimos 9 años no ha evolucionado casi nada. Seguimos a la cola de los paises desarrollados y ni de cerca estamos sufriendo una integración con paises punteros como Alemania.
+No hay diferencia casi entre ambos mapas, y es que en estos años de recuperación economica tras la crisis de 2008 los países han crecido al unísono y los que eran líderes económicos lo siguen siendo.
+
+El 2020 ha provocado caidas en los niveles de PIB per cápita en todos los paises analizados, pero no ha alterado los mapas. Es decir, el covid no ha provocado ni integración ni desintegración real entre paises. Cabe destacar que los datos utilzados para el 2020 son semestrales.
+
+## 5. Las exportaciones
+
+En este apartado analizamos el volumen de exportaciones de bienes y servicios en 2019 y en 2020 para España, Italia, Francia, Reino Unido, Holanda, Polonia y Alemania. Los datos utilizados nos permiten ver como la pandemia ha reducido el volumen de exportaciones en todos los paises analizados, pero en ciertos paises la caida ha sido mayor. Esto lo podemos ver en los siguientes mapas, donde dividimos las exportaciones en tres categorias segun el volumen y cada color representa una categoria. 
+
+```{r, echo = FALSE, eval = TRUE}
+contenido_eurostat <- get_eurostat_toc()
+export <- get_eurostat(id="namq_10_exi", time_format = "num")
+
+export_labels <- label_eurostat(export)
+
+DFexport_2019_5 <- export %>% filter(time == 2019.5) %>% filter(geo %in% c("ES", "FR" , "DE", "IT", "SW", "UK" , "PL" ,  "NL"))%>% filter(unit == "CP_MEUR") %>% filter(na_item == "P6") %>% filter(s_adj == "NSA")
+
+
+DFexport2020_50 <- export %>% filter(time == 2020.5) %>% filter(geo %in% c("ES", "FR" , "DE", "IT", "SW", "UK" , "PL" ,  "NL"))%>% filter(unit == "CP_MEUR") %>% filter(na_item == "P6") %>% filter(s_adj == "NSA")
+
+
+df_ex2019 <- DFexport_2019_5 %>% filter(time == "2019.5") %>%
+        mutate(cat = cut_to_classes(values, n = 7, decimals = 1))
+
+geometrias19 <- get_eurostat_geospatial(resolution = "20", nuts_level = "0")
+
+
+mapdata19 <- inner_join(geometrias19, df_ex2019, by = c("geo" = "geo"))
+
+MAPA_EXPORT_2019 <- get_eurostat_geospatial(nuts_level = 0) %>%
+  right_join(DFexport_2019_5) %>%
+  mutate(categorias = cut_to_classes(values, n=3, decimals=1))
+
+
+
+
+
+
+ggplot(MAPA_EXPORT_2019, aes(fill=categorias)) +
+  geom_sf(color = alpha("black", 1/2), alpha= 0.9) +
+  xlim(c(-20, 44)) +
+  ylim(c(35, 70)) +
+  labs(title = "Exportaciones 2019",
+       subtitle = "",
+       caption = "Source: Elaboracion propia",
+       fill= "Millones de euros")+
+  theme_dark()
+
+
+
+
+df_ex2020<- DFexport2020_50 %>% filter(time == "2020.5") %>%
+        mutate(cat = cut_to_classes(values, n = 7, decimals = 1))
+
+geometrias20 <- get_eurostat_geospatial(resolution = "20", nuts_level = "0")
+
+
+mapdata20 <- inner_join(geometrias20, df_ex2020, by = c("geo" = "geo"))
+
+MAPA_EXPORT_2020 <- get_eurostat_geospatial(nuts_level = 0) %>%
+  right_join(DFexport2020_50) %>%
+  mutate(categorias = cut_to_classes(values, n=3, decimals=1))
+
+
+
+
+
+
+ggplot(MAPA_EXPORT_2020, aes(fill=categorias)) +
+  geom_sf(color = alpha("black", 1/2), alpha= 0.9) +
+  xlim(c(-20, 44)) +
+  ylim(c(35, 70)) +
+  labs(title = "Exportaciones 2020",
+       subtitle = "",
+       caption = "Source: Elaboracion propia",
+       fill= "Millones de euros")+
+  theme_dark()
+
+
+```
+
+
+Como podemos observar en 2019 el país puntero en exportaciones es Alemania, seguido de Francia y Reino Unido. Los principales bienes exportados de Alemania son vehículos, maquinarias, productos químicos, productos electrónicos y productos farmacéuticos. Tras la pandemia sufrida en 2020 las exportaciones de Alemania cayeron, aunque mucho menos que las de otros paises.
+
+En el segundo mapa llama la atención como el único país que sigue en el top de paises exportadores es Alemania, y que Francia y Reino Unido han descendido a la última categoría. Las exportaciones francesas sufrieron en el trimestre una caída del 25,5%, frente al descenso del 6,1% del primer trimestre.
+
+El caso de Reino Unido es más expecial, ya que no solo se ve afectado por la pandemia. El Brexit cada vez está más cerca, y la incertidumbre que esto genera provoca un mayor descenso de las exportaciones.
+
+## 6. Medidas de política fiscal en la pandemia.
+
+En este apartado vamos a analizar la politica fiscal seguida por los gobiernos europeos. Estos países pertenecen a la UE y por tanto no poseen autoridad monetaria propia a la hora de expandir la oferta de dinero o de contraerla. Por tanto, su único instrumento ante las crisis es la política fiscal. Evidentemente ante la crisis sanitaria que hemos vivido en 2020 el gasto de los gobiernos europeos se ha incrementado. Dado el fuerte aumento de la deuda pública, la calidad, y no solo la cantidad, de las medidas fiscales tomadas frente a la crisis de la COVID es crucial.
+Podríamos distinguir dos fases en las medidas de política fiscal tomadas tanto en Alemania como en Francia y España. En la fase de contención del virus, la prioridad es mantener el tejido productivo de la economía y evitar que empresas eficientes quiebren o que empleados necesarios acaben desempleados. Los programas de ajuste temporal del empleo han sido en Alemania (Kurzarbeit), España (ERTE) y Francia (chômage partiel).
+Una vez pasada la crisis sanitaria, los esfuerzos deberán concentrarse en la recuperación económica. Pero, para conseguirlo, será necesario algo más que aumentar el gasto público. El shock económico ha sido tan fuerte que ya está suponiendo transformaciones estructurales en las economías. Por esta razón, las políticas deberían centrarse en la transformación económica y la reasignación de recursos.
+
+[enlace a CaixaBank Research](https://www.caixabankresearch.com/es/economia-y-mercados/sector-publico/efectividad-politica-fiscal-tiempos-covid)
+
+##  7. Conclusiones
+
+Una vez analizados los datos, matemática y gráficamente, nos disponemos a resolver la cuestion que nos planteamos al inicio del informe: ¿Está ligado el impacto económico de la actual crisis sanitaria con la especialización económica de cada país?. pues bien, esta cuestion la abordaremos en diferntes partes. 
+Para comenzar, vemos que los indicadores macroeconómicos situan los paises mas industrializados como los mejor situados para afrontar es crisis, en primer lugar Alemania, después Reino Unido y Francia, y en el último lugar España. Estos indicadores son la tasa de desempleo, el PIB, el PIB per cápita y las exportaciones. 
+En segundo lugar tenemos la influencia de la actual crisis sanitaria, donde observmos que la mayor incidencia se registra en España, pais ligado al turismo de una manera mas intensa que el resto y por tanto con una caida mayor del PIB, asi pues las exportaciones españolas no son las mas afectados, hecho al que esta ligado la salida de Reino Unido de la Unión Europea. En cambio, paises como Francia y Reino Unido no han visto caer su PIB de forma tan brusca, como consecuencia de su ayor y mejor tejido industrial. En último lugar Alemania que es el país menos afectado, en primer lugar por su tejido industria y la especialización de su economia en ese sector. Y además sus exportaciones, pricipalmente productos tecnologicos, quimicos y farmaceuticos, que son los mas demandados en esta crisis (ya sean maquinaria para hospitales o farmacos para el control de la pandemia)
+Por tanto podemos concluir que la especializacion economica de cada país influye, y de manera importante, en la recuperación de estos países tras la crisis actual. Viendo una estrecha relacion entre el grado de industralizacion de los paises, y mas concretamente de especializacion en industria pesada, farmaceutica y quimica, con la velocidad de recuperacion y el impacto de esta crisis.
+
+
+##  8. Bibliografía 
+
+[Base de datos Eurostat](https://ec.europa.eu/eurostat/search?p_auth=nLIBCg0g&p_p_id=estatsearchportlet_WAR_estatsearchportlet&p_p_lifecycle=1&p_p_state=maximized&p_p_mode=view&_estatsearchportlet_WAR_estatsearchportlet_theme=empty&_estatsearchportlet_WAR_estatsearchportlet_action=search&_estatsearchportlet_WAR_estatsearchportlet_collection=empty&text=Employment)
+**Articulo respecto a la evolución del empleo 2008-2018** <https://www.nuevatribuna.es/articulo/europa1/eurozona-empleo-trabajo-mercado-laboral-europa-euro-salarios/20180424071729151171.html>
+
+<https://datosmacro.expansion.com> 
+<https://www.rstudio.com/wp-content/uploads/2015/03/rmarkdown-spanish.pdf>
+API EUROSTAT 
+<https://www.bancomundial.org/>
+
+
+----------------
+
+
+
+
+
