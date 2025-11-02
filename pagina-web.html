@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Impacto Económico del Covid-19 en Europa</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --primary: #1f6feb;
+      --secondary: #0d1b2a;
+      --accent: #f4b41a;
+      --light: #f7fbff;
+      --dark: #1b263b;
+      --muted: #778da9;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Poppins", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: linear-gradient(180deg, rgba(15, 32, 60, 0.95), rgba(4, 20, 40, 0.85)),
+        url("./imagenes/empleo_covid.jpg") center/cover fixed;
+      color: var(--light);
+      line-height: 1.6;
+    }
+
+    header {
+      background: rgba(13, 27, 42, 0.85);
+      backdrop-filter: blur(12px);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      box-shadow: 0 20px 45px rgba(0, 0, 0, 0.3);
+    }
+
+    nav {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 1.4rem 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    nav .logo {
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      font-size: 1.1rem;
+      text-transform: uppercase;
+      color: var(--accent);
+    }
+
+    nav ul {
+      list-style: none;
+      display: flex;
+      gap: 1.5rem;
+      padding: 0;
+      margin: 0;
+    }
+
+    nav a {
+      color: var(--light);
+      text-decoration: none;
+      font-weight: 500;
+      transition: color 0.3s ease, transform 0.3s ease;
+    }
+
+    nav a:hover {
+      color: var(--accent);
+      transform: translateY(-2px);
+    }
+
+    .hero {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 5rem 2rem 4rem;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 2rem;
+      align-items: center;
+    }
+
+    .hero h1 {
+      font-size: clamp(2.2rem, 4vw + 1.2rem, 3.8rem);
+      margin-bottom: 1.2rem;
+      line-height: 1.1;
+    }
+
+    .hero p {
+      color: rgba(247, 251, 255, 0.85);
+      font-size: 1.05rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .cta-button {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: var(--accent);
+      color: var(--secondary);
+      font-weight: 600;
+      padding: 0.9rem 1.6rem;
+      border-radius: 999px;
+      text-decoration: none;
+      box-shadow: 0 18px 35px rgba(244, 180, 26, 0.35);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .cta-button:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 28px 55px rgba(244, 180, 26, 0.45);
+    }
+
+    section {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 4rem 2rem;
+      background: rgba(13, 27, 42, 0.72);
+      border-radius: 28px;
+      box-shadow: 0 30px 60px rgba(0, 0, 0, 0.35);
+      backdrop-filter: blur(12px);
+    }
+
+    section + section {
+      margin-top: 2.5rem;
+    }
+
+    h2 {
+      margin-top: 0;
+      font-size: 2rem;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+
+    .pill {
+      display: inline-block;
+      margin-bottom: 1rem;
+      background: rgba(31, 111, 235, 0.18);
+      border: 1px solid rgba(244, 180, 26, 0.3);
+      color: var(--accent);
+      padding: 0.4rem 0.8rem;
+      border-radius: 999px;
+      font-size: 0.85rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1.5rem;
+      margin-top: 2rem;
+    }
+
+    .card {
+      padding: 1.8rem;
+      border-radius: 22px;
+      border: 1px solid rgba(119, 141, 169, 0.2);
+      background: rgba(17, 37, 61, 0.88);
+      box-shadow: 0 18px 45px rgba(0, 0, 0, 0.25);
+      transition: transform 0.3s ease, border 0.3s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-6px);
+      border-color: rgba(244, 180, 26, 0.4);
+    }
+
+    .card h3 {
+      margin-top: 0;
+      color: var(--light);
+      font-size: 1.1rem;
+    }
+
+    .highlights {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1.5rem;
+      margin-top: 2rem;
+    }
+
+    .highlight {
+      padding: 1.6rem;
+      border-radius: 20px;
+      background: linear-gradient(140deg, rgba(31, 111, 235, 0.35), rgba(119, 141, 169, 0.15));
+      border: 1px solid rgba(244, 180, 26, 0.35);
+      text-align: center;
+    }
+
+    .highlight span {
+      display: block;
+      font-size: 2.2rem;
+      font-weight: 700;
+      color: var(--accent);
+    }
+
+    .timeline {
+      margin-top: 2.5rem;
+      border-left: 2px dashed rgba(244, 180, 26, 0.4);
+      padding-left: 1.5rem;
+    }
+
+    .timeline-item {
+      position: relative;
+      margin-bottom: 2rem;
+    }
+
+    .timeline-item::before {
+      content: "";
+      position: absolute;
+      left: -2.1rem;
+      top: 0.3rem;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 18px rgba(244, 180, 26, 0.6);
+    }
+
+    .timeline-item h3 {
+      margin: 0 0 0.6rem;
+      color: var(--light);
+    }
+
+    .team {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1.5rem;
+      margin-top: 2rem;
+    }
+
+    .member {
+      padding: 1.5rem;
+      background: rgba(17, 37, 61, 0.85);
+      border-radius: 20px;
+      border: 1px solid rgba(31, 111, 235, 0.35);
+      text-align: center;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.25);
+    }
+
+    .member h3 {
+      margin: 0.8rem 0 0.4rem;
+      color: var(--accent);
+    }
+
+    .member p {
+      margin: 0;
+      color: rgba(247, 251, 255, 0.75);
+      font-size: 0.95rem;
+    }
+
+    footer {
+      max-width: 1100px;
+      margin: 3rem auto 2rem;
+      padding: 2rem;
+      text-align: center;
+      color: rgba(247, 251, 255, 0.65);
+    }
+
+    footer a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+
+    @media (max-width: 720px) {
+      nav {
+        flex-direction: column;
+        gap: 1rem;
+        text-align: center;
+      }
+
+      nav ul {
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+
+      section {
+        padding: 3rem 1.5rem;
+      }
+
+      .cards,
+      .highlights,
+      .team {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <nav>
+      <div class="logo">Big Data · UV</div>
+      <ul>
+        <li><a href="#introduccion">Introducción</a></li>
+        <li><a href="#hallazgos">Hallazgos</a></li>
+        <li><a href="#metodologia">Metodología</a></li>
+        <li><a href="#equipo">Equipo</a></li>
+        <li><a href="#recursos">Recursos</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main>
+    <section class="hero" id="introduccion">
+      <div>
+        <span class="pill">Investigación aplicada</span>
+        <h1>Impacto económico del Covid-19 según el modelo de desarrollo europeo</h1>
+        <p>
+          Analizamos cómo la pandemia afectó de forma asimétrica a las principales economías de la Unión Europea y qué papel
+          jugaron sus modelos productivos. El proyecto combina fuentes oficiales, visualizaciones interactivas y narrativas
+          accesibles para entender la magnitud de la crisis.
+        </p>
+        <a class="cta-button" href="index.html">Explorar el informe completo →</a>
+      </div>
+      <div>
+        <div class="cards">
+          <div class="card">
+            <h3>Países analizados</h3>
+            <p>España, Francia, Alemania e Italia como referentes dentro de la UE.</p>
+          </div>
+          <div class="card">
+            <h3>Indicadores clave</h3>
+            <p>PIB per cápita, estructura sectorial, desempleo y gasto público.</p>
+          </div>
+          <div class="card">
+            <h3>Fuentes oficiales</h3>
+            <p>World Bank (WDI), Eurostat, OCDE y organismos nacionales de estadística.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="hallazgos">
+      <span class="pill">Hallazgos principales</span>
+      <h2>¿Qué descubrimos?</h2>
+      <p>
+        El análisis revela que la especialización productiva condicionó la resistencia económica durante 2020. Las economías con
+        un peso mayor en servicios presenciales sufrieron contracciones más pronunciadas, mientras que aquellas con industria y
+        manufactura robustas resistieron mejor la caída del PIB.
+      </p>
+      <div class="highlights">
+        <div class="highlight">
+          <span>-17.8%</span>
+          Caída trimestral del PIB español en el segundo trimestre de 2020, la más severa desde que existen registros.
+        </div>
+        <div class="highlight">
+          <span>+24%</span>
+          Participación de la industria en el PIB alemán, clave para su resiliencia frente a la crisis sanitaria.
+        </div>
+        <div class="highlight">
+          <span>8.6%</span>
+          Tasa de desempleo francesa en 2020, inferior a la media europea pese al shock global.
+        </div>
+      </div>
+    </section>
+
+    <section id="metodologia">
+      <span class="pill">Cómo lo hicimos</span>
+      <h2>Metodología y proceso</h2>
+      <p>
+        El trabajo se elaboró en R utilizando RMarkdown para combinar código, narrativa y visualizaciones. Partimos de la descarga
+        de indicadores macroeconómicos oficiales, realizamos limpieza y transformación de datos y generamos gráficos comparativos
+        para comprender las diferencias estructurales entre economías europeas.
+      </p>
+      <div class="timeline">
+        <div class="timeline-item">
+          <h3>1. Recolección de datos</h3>
+          <p>Extracción de series históricas desde WDI y Eurostat para los indicadores seleccionados.</p>
+        </div>
+        <div class="timeline-item">
+          <h3>2. Limpieza y normalización</h3>
+          <p>Unificación de unidades, nombres de variables y construcción de indicadores comparables.</p>
+        </div>
+        <div class="timeline-item">
+          <h3>3. Visualización interactiva</h3>
+          <p>Diseño de tablas, gráficos de sectores y narrativas dinámicas para presentar hallazgos clave.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="equipo">
+      <span class="pill">Quiénes somos</span>
+      <h2>Equipo investigador</h2>
+      <p>
+        Estudiantes de la Universitat de València comprometidos con el análisis de datos para entender fenómenos socioeconómicos
+        complejos y comunicar resultados de forma clara.
+      </p>
+      <div class="team">
+        <div class="member">
+          <h3>Dairo Smith Quintero Vargas</h3>
+          <p>daiquin@alumni.uv.es</p>
+        </div>
+        <div class="member">
+          <h3>Daniela Villa Arboleda</h3>
+          <p>daviar@alumni.uv.es</p>
+        </div>
+        <div class="member">
+          <h3>Carlos Corachan Pérez</h3>
+          <p>carcope2@alumni.uv.es</p>
+        </div>
+        <div class="member">
+          <h3>Miguel Silla Rios</h3>
+          <p>misirios@alumni.uv.es</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="recursos">
+      <span class="pill">Continúa explorando</span>
+      <h2>Recursos y materiales</h2>
+      <div class="cards">
+        <div class="card">
+          <h3>Informe interactivo</h3>
+          <p>Consulta el documento completo generado con RMarkdown, que incluye código, gráficos y conclusiones ampliadas.</p>
+          <p><a href="index.html">Abrir informe →</a></p>
+        </div>
+        <div class="card">
+          <h3>Repositorio del proyecto</h3>
+          <p>Accede al código fuente, datasets y bitácora del proyecto en GitHub.</p>
+          <p><a href="https://github.com/Daiquin/trabajo_BigData_equipo">Visitar repositorio →</a></p>
+        </div>
+        <div class="card">
+          <h3>Docencia de la asignatura</h3>
+          <p>Descubre materiales adicionales de la asignatura “Programación y manejo de datos en la era del Big Data”.</p>
+          <p><a href="https://perezp44.github.io/intro-ds-20-21-web/">Ir al sitio →</a></p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    Elaborado en diciembre de 2020 y actualizado automáticamente con las herramientas de publicación de RMarkdown. Para más
+    información puedes escribir a cualquiera de los integrantes del equipo.
+  </footer>
+</body>
+</html>
